@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: visualizer
+  datasource:
+    url: jdbc:postgresql://localhost:5432/visualizer_db
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+file:
+  upload-dir: ./data/uploads # Where files are stored
