@@ -1,4 +1,4 @@
-package com.viiku.visualizer.model.dto;
+package com.viiku.visualizer.model.dtos;
 
 import lombok.*;
 

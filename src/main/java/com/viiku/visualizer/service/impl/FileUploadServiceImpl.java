@@ -1,6 +1,9 @@
 package com.viiku.visualizer.service.impl;
 
-import org.apache.poi.ss.usermodel.*;
+import com.viiku.visualizer.model.dtos.payload.response.FileStatusResponse;
+import com.viiku.visualizer.model.dtos.payload.response.FileUploadResponse;
+import com.viiku.visualizer.model.enums.FileStatus;
+import lombok.var;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -8,13 +11,14 @@ import com.google.gson.Gson;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import com.viiku.visualizer.common.exception.FileParsingException;
-import com.viiku.visualizer.model.entity.DataFile;
+import com.viiku.visualizer.model.entities.FileDataEntity;
 import com.viiku.visualizer.repository.DataFileRepository;
-import com.viiku.visualizer.service.FileService;
+import com.viiku.visualizer.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,14 +26,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class FileServiceImpl implements FileService {
+public class FileUploadServiceImpl implements FileUploadService {
 
     private final DataFileRepository dataFileRepository;
 
@@ -37,35 +38,67 @@ public class FileServiceImpl implements FileService {
     private String uploadDir;
 
     @Override
-    public String parseFile(MultipartFile file) throws FileParsingException {
+    public FileUploadResponse uploadFile(MultipartFile file) throws IOFileUploadException {
+
+        if (file.isEmpty()) {
+            throw new IOFileUploadException("File is empty: " + file.getOriginalFilename());
+        }
+
         try {
-            String fileName = file.getOriginalFilename();
-            String fileType = file.getContentType();
-            String jsonData;
+            String fileId = parseAndStoreFile(file);
+            return new FileUploadResponse(fileId, "File uploaded successfully");
+        } catch (FileParsingException e) {
+            throw new IOFileUploadException("File parsing failed: " + e.getMessage());
+        } catch (Exception e) {
+            throw new IOFileUploadException("Unexpected error during file upload: " + e.getMessage());
+        }
+    }
 
-            if (fileName.endsWith(".csv")) {
-                jsonData = parseCsv(file);
-            } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
-                jsonData = parseExcel(file);
-            } else if (fileName.endsWith(".pdf")) {
-                jsonData = parsePdf(file);
-            } else {
-                throw new FileParsingException("Unsupported file type: " + fileName);
-            }
+    @Override
+    public var generateMapFromJson(MultipartFile file) {
+        return null;
+    }
 
-            // Save to DB (optional)
-            DataFile dataFile = new DataFile();
-            dataFile.setFileName(fileName);
-            dataFile.setFileType(fileType);
-            dataFile.setJsonData(jsonData);
-            dataFileRepository.save(dataFile);
+    @Override
+    public FileStatusResponse getFileStatus(String uploadId) {
+        return null;
+    }
 
-            return jsonData;
+    private String parseAndStoreFile(MultipartFile file) throws FileParsingException {
+        try {
+            String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("unknown");
+            String fileType = Optional.ofNullable(file.getContentType()).orElse("application/octet-stream");
+
+            String jsonData = switch (getExtension(fileName)) {
+                case "csv" -> parseCsv(file);
+                case "xls", "xlsx" -> parseExcel(file);
+                case "pdf" -> parsePdf(file);
+                default -> throw new FileParsingException("Unsupported file type: " + fileName);
+            };
+
+            String fileId = UUID.randomUUID().toString();
+
+            FileDataEntity fileData = FileDataEntity.builder()
+                    .id(fileId)
+                    .fileName(fileName)
+                    .fileType(fileType)
+                    .jsonData(jsonData)
+                    .status(FileStatus.PENDING)
+                    .build();
+
+            dataFileRepository.save(fileData);
+            return fileId;
 
         } catch (IOException | IllegalArgumentException e) {
             throw new FileParsingException("Failed to parse file: " + e.getMessage(), e);
         }
     }
+
+    private String getExtension(String fileName) {
+        return fileName.contains(".") ?
+                fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase() : "";
+    }
+
 
     private String parseCsv(MultipartFile file) throws IOException {
         try (Reader reader = new InputStreamReader(file.getInputStream())) {

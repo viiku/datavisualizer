@@ -28,11 +28,11 @@ import java.util.Optional;
 @AllArgsConstructor
 public abstract class BaseEntity {
 
-    @CreationTimestamp
+//    @CreationTimestamp
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+//    @UpdateTimestamp
     @Column(name = "UPDATED_AT", updatable = true)
     private LocalDateTime updatedAt;
 
