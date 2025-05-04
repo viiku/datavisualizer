@@ -1,5 +1,5 @@
-package com.viiku.visualizer.service;
-
-public interface VisualizationService {
-
-}
+//package com.viiku.visualizer.service;
+//
+//public interface VisualizationService {
+//
+//}

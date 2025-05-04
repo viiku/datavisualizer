@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/files")
@@ -21,7 +20,7 @@ public class FileUploadController {
 
     private final FileUploadService fileUploadService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
             FileUploadResponse response = fileUploadService.uploadFile(file);
@@ -37,15 +36,15 @@ public class FileUploadController {
         }
     }
 
-    @GetMapping("/{fileId}/records")
-    public ResponseEntity<?> getRecordsById(@PathVariable String fileId) {
-        // TODO: Implement retrieval of parsed JSON or data preview
-        return ResponseEntity.ok(Map.of("message", "Data retrieval not implemented yet", "fileId", fileId));
-    }
-
-    @GetMapping("/{uploadId}/status")
-    public ResponseEntity<FileStatusResponse> getFileStatus(@PathVariable String uploadId) {
-        FileStatusResponse fileStatusResponse = fileUploadService.getFileStatus(uploadId);
-        return ResponseEntity.ok(fileStatusResponse);
-    }
+//    @GetMapping("/{fileId}/records")
+//    public ResponseEntity<?> getRecordsById(@PathVariable String fileId) {
+//        // TODO: Implement retrieval of parsed JSON or data preview
+//        return ResponseEntity.ok(Map.of("message", "Data retrieval not implemented yet", "fileId", fileId));
+//    }
+//
+//    @GetMapping("/{uploadId}/status")
+//    public ResponseEntity<FileStatusResponse> getFileStatus(@PathVariable String uploadId) {
+//        FileStatusResponse fileStatusResponse = fileUploadService.getFileStatus(uploadId);
+//        return ResponseEntity.ok(fileStatusResponse);
+//    }
 }

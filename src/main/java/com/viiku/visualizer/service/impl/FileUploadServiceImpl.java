@@ -1,10 +1,9 @@
 package com.viiku.visualizer.service.impl;
 
+import com.viiku.visualizer.common.exception.FileUploadException;
 import com.viiku.visualizer.model.dtos.payload.response.FileStatusResponse;
 import com.viiku.visualizer.model.dtos.payload.response.FileUploadResponse;
 import com.viiku.visualizer.model.enums.FileStatus;
-import lombok.var;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import com.google.gson.Gson;
@@ -41,23 +40,23 @@ public class FileUploadServiceImpl implements FileUploadService {
     public FileUploadResponse uploadFile(MultipartFile file) throws IOFileUploadException {
 
         if (file.isEmpty()) {
-            throw new IOFileUploadException("File is empty: " + file.getOriginalFilename());
+            throw new FileUploadException("File is empty: " + file.getOriginalFilename());
         }
 
         try {
             String fileId = parseAndStoreFile(file);
             return new FileUploadResponse(fileId, "File uploaded successfully");
         } catch (FileParsingException e) {
-            throw new IOFileUploadException("File parsing failed: " + e.getMessage());
+            throw new FileUploadException("File parsing failed: " + e.getMessage());
         } catch (Exception e) {
-            throw new IOFileUploadException("Unexpected error during file upload: " + e.getMessage());
+            throw new FileUploadException("Unexpected error during file upload: " + e.getMessage());
         }
     }
 
-    @Override
-    public var generateMapFromJson(MultipartFile file) {
-        return null;
-    }
+//    @Override
+//    public var generateMapFromJson(MultipartFile file) {
+//        return null;
+//    }
 
     @Override
     public FileStatusResponse getFileStatus(String uploadId) {
