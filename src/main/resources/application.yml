@@ -1,6 +1,6 @@
 spring:
   application:
-    name: visualizer
+    name: datavisualizer
   datasource:
     url: jdbc:postgresql://localhost:5432/visualizer_db
     username: postgres

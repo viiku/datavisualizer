@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.viiku</groupId>
-	<artifactId>visualizer</artifactId>
+	<artifactId>datavisualizer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>visualizer</name>
-	<description>Spring boot project for visualization</description>
+	<name>datavisualizer</name>
+	<description>Spring boot project for data visualization</description>
 	<url/>
 	<licenses>
 		<license/>
