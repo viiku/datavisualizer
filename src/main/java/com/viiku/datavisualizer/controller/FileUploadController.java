@@ -2,7 +2,9 @@ package com.viiku.datavisualizer.controller;
 
 import com.viiku.datavisualizer.common.exception.FileParsingException;
 import com.viiku.datavisualizer.model.dtos.payload.response.FileUploadResponse;
-import com.viiku.datavisualizer.service.FileUploadService;
+import com.viiku.datavisualizer.model.enums.FileUploadStatus;
+import com.viiku.datavisualizer.service.FileProcessingService;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,26 +13,65 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/map")
+@RequestMapping("/api/v1/uploads")
 public class FileUploadController {
 
-    private final FileUploadService fileUploadService;
+    private final FileProcessingService fileProcessingService;
 
-    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+    @PostMapping(path = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FileUploadResponse> uploadFile(
+            @RequestParam(value = "file", required = true) MultipartFile file) {
+
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                    FileUploadResponse.builder()
+                            .status(FileUploadStatus.FAILED)
+                            .message("File is empty.")
+                            .build()
+            );
+        }
+
         try {
-            FileUploadResponse response = fileUploadService.uploadFile(file);
-            return ResponseEntity.ok(response);
+            String contentType = file.getContentType();
+            if (contentType == null ||
+                    !(contentType.equals("text/csv") ||
+                            contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
+                            contentType.equals("application/pdf"))) {
+                return ResponseEntity.badRequest().body(
+                        FileUploadResponse.builder()
+                                .message("Unsupported file type. Please upload CSV, Excel, or PDF.")
+                                .status(FileUploadStatus.FAILED)
+                                .build()
+                );
+            }
+
+            fileProcessingService.processFileAsync(file); // Process asynchronously
+            UUID fileId= UUID.randomUUID();
+            return ResponseEntity.accepted().body(
+                    FileUploadResponse.builder()
+                            .fileId(fileId)
+                            .status(FileUploadStatus.PENDING)
+                            .message("File uploaded and processing initiated.")
+                            .build()
+            );
+
         } catch (FileParsingException e) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "File parsing failed", "message", e.getMessage())
+                    FileUploadResponse.builder()
+                            .status(FileUploadStatus.FAILED)
+                            .message("File parsing failed: " + e.getMessage())
+                            .build()
             );
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    Map.of("error", "Internal Server Error", "message", e.getMessage())
+                    FileUploadResponse.builder()
+                            .status(FileUploadStatus.FAILED)
+                            .message("Internal server error: " + e.getMessage())
+                            .build()
             );
         }
     }

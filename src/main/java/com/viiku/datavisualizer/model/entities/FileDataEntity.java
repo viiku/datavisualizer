@@ -1,7 +1,7 @@
 package com.viiku.datavisualizer.model.entities;
 
 import com.viiku.datavisualizer.common.model.entity.BaseEntity;
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +25,7 @@ public class FileDataEntity extends BaseEntity {
     @Column(columnDefinition = "TEXT") // large JSON
     private String jsonData;
 
-    private FileStatus status;
+    private FileUploadStatus status;
 
 //    private String userId; // optional for multi-tenancy
 //    private String tenantId; // optional for SaaS

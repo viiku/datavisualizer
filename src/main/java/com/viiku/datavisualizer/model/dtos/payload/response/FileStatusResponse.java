@@ -1,6 +1,6 @@
 package com.viiku.datavisualizer.model.dtos.payload.response;
 
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import lombok.*;
 
 @Getter
@@ -11,6 +11,6 @@ import lombok.*;
 public class FileStatusResponse {
 
     private String uploadId;
-    private FileStatus fileStatus;
+    private FileUploadStatus fileUploadStatus;
     private String message;
 }

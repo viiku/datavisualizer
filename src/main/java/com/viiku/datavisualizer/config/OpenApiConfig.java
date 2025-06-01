@@ -11,8 +11,8 @@ public class OpenApiConfig {
     public OpenAPI springShopOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Blog API")
-                        .description("Blog application API documentation")
+                        .title("Data Visualizer API")
+                        .description("Data Visualizer API documentation")
                         .version("v1.0.0"));
     }
 }

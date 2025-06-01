@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class VisualizerApplication {
+public class DataVisualizerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VisualizerApplication.class, args);
+		SpringApplication.run(DataVisualizerApplication.class, args);
 	}
 
 }

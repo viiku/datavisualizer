@@ -3,7 +3,7 @@ package com.viiku.datavisualizer.service.impl;
 import com.viiku.datavisualizer.common.exception.FileUploadException;
 import com.viiku.datavisualizer.model.dtos.payload.response.FileStatusResponse;
 import com.viiku.datavisualizer.model.dtos.payload.response.FileUploadResponse;
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import com.google.gson.Gson;
@@ -12,11 +12,12 @@ import org.apache.commons.csv.CSVRecord;
 import com.viiku.datavisualizer.common.exception.FileParsingException;
 import com.viiku.datavisualizer.model.entities.FileDataEntity;
 import com.viiku.datavisualizer.repository.FileDataRepository;
-import com.viiku.datavisualizer.service.FileUploadService;
+import com.viiku.datavisualizer.service.FileProcessingService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,23 +30,37 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class FileUploadServiceImpl implements FileUploadService {
+public class FileProcessingServiceImpl implements FileProcessingService {
 
-    private final FileDataRepository fileDataRepository;
+//    private final FileDataRepository fileDataRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     @Override
-    public FileUploadResponse uploadFile(MultipartFile file) throws IOFileUploadException {
+    public FileUploadResponse processFileAsync(MultipartFile file) {
+        return null;
+    }
 
+    @Override
+    public Map<String, Object> getProcessingStatus(String processingId) {
+        return Map.of();
+    }
+
+
+    private FileUploadResponse uploadFile(MultipartFile file) throws IOFileUploadException {
         if (file.isEmpty()) {
             throw new FileUploadException("File is empty: " + file.getOriginalFilename());
         }
 
         try {
-            String fileId = parseAndStoreFile(file);
-            return new FileUploadResponse(fileId, "File uploaded successfully");
+            UUID fileId = parseAndStoreFile(file);
+            return FileUploadResponse.builder()
+                    .fileId(fileId)
+                    .status(FileUploadStatus.PROCESSING)
+                    .message("File uploaded successfully")
+                    .build();
+
         } catch (FileParsingException e) {
             throw new FileUploadException("File parsing failed: " + e.getMessage());
         } catch (Exception e) {
@@ -53,17 +68,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         }
     }
 
-//    @Override
-//    public var generateMapFromJson(MultipartFile file) {
-//        return null;
-//    }
-
-    @Override
-    public FileStatusResponse getFileStatus(String uploadId) {
-        return null;
-    }
-
-    private String parseAndStoreFile(MultipartFile file) throws FileParsingException {
+    private UUID parseAndStoreFile(MultipartFile file) throws FileParsingException {
         try {
             String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("unknown");
             String fileType = Optional.ofNullable(file.getContentType()).orElse("application/octet-stream");
@@ -72,20 +77,20 @@ public class FileUploadServiceImpl implements FileUploadService {
                 case "csv" -> parseCsv(file);
                 case "xls", "xlsx" -> parseExcel(file);
                 case "pdf" -> parsePdf(file);
-                default -> throw new FileParsingException("Unsupported file type: " + fileName);
+                default -> throw new FileParsingException("Unsupported file type: ");
             };
 
-            String fileId = UUID.randomUUID().toString();
+            UUID fileId = UUID.randomUUID();
 
             FileDataEntity fileData = FileDataEntity.builder()
                     .id(fileId)
                     .fileName(fileName)
                     .fileType(fileType)
                     .jsonData(jsonData)
-                    .status(FileStatus.PENDING)
+                    .status(FileUploadStatus.PENDING)
                     .build();
 
-            fileDataRepository.save(fileData);
+//            fileDataRepository.save(fileData);
             return fileId;
 
         } catch (IOException | IllegalArgumentException e) {
@@ -97,7 +102,6 @@ public class FileUploadServiceImpl implements FileUploadService {
         return fileName.contains(".") ?
                 fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase() : "";
     }
-
 
     private String parseCsv(MultipartFile file) throws IOException {
         try (Reader reader = new InputStreamReader(file.getInputStream())) {

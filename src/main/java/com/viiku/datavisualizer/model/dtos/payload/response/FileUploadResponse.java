@@ -1,7 +1,9 @@
 package com.viiku.datavisualizer.model.dtos.payload.response;
 
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import lombok.*;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -9,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileUploadResponse {
-    private String uploadId;
-    private FileStatus status;
+    private UUID fileId;
+    private FileUploadStatus status;
     private String message;
 }

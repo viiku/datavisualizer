@@ -128,3 +128,27 @@ Auth: Required.
 Processing: Fetch all UploadedFile records for the current user.
 Response: 200 OK with a list of upload summaries (ID, name, status, timestamp, etc.).
 
+| **#** | **Method** | **Endpoint**                              | **Auth** | **Description**                                                   | **Response (Status)**                            |
+| ----: | ---------- | ----------------------------------------- | -------- | ----------------------------------------------------------------- | ------------------------------------------------ |
+|     1 | `POST`     | `/api/v1/maps/uploads`                    | ✅ Yes    | Upload a file (CSV, Excel, PDF, etc.) for processing              | `202 Accepted` with `upload_id`, status, message |
+|     2 | `GET`      | `/api/v1/maps/uploads/{upload_id}/status` | ✅ Yes    | Get the status of an uploaded file                                | `200 OK` with status, detected metrics, errors   |
+|     3 | `GET`      | `/api/v1/maps/uploads/{upload_id}/data`   | ✅ Yes    | Fetch processed GeoJSON data with a specific metric and geo level | `200 OK` with FeatureCollection GeoJSON          |
+|     4 | `GET`      | `/api/v1/maps/uploads`                    | ✅ Yes    | (Optional) List all uploads by the current user                   | `200 OK` with list of upload summaries           |
+
+| **Endpoint**                              | **Required Params / Query**                                             | **Notes**                                                         |
+| ----------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `/api/v1/maps/uploads`                    | `file (form-data)`<br>Optional: `name`, `description`                   | Triggers background processing, stores data with status `PENDING` |
+| `/api/v1/maps/uploads/{upload_id}/status` | Path: `upload_id`                                                       | Returns status: `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`    |
+| `/api/v1/maps/uploads/{upload_id}/data`   | Path: `upload_id`<br>Query: `metric` (required), `geo_level` (optional) | Returns valid GeoJSON only if status is `COMPLETED`               |
+| `/api/v1/maps/uploads`                    | None                                                                    | Used to show upload history, possibly for a dashboard             |
+
+
+| **#** | **Method** | **Endpoint**                                     | **Description**                                                                          |
+| ----: | ---------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+|     1 | `POST`     | `/api/v1/uploads`                                | Upload a CSV/Excel/PDF file. Returns `uploadId`                                          |
+|     2 | `GET`      | `/api/v1/uploads/{uploadId}/status`              | Get parsing status: `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`                       |
+|     3 | `GET`      | `/api/v1/uploads/{uploadId}/summary`             | Returns inferred metadata: column names, types, geo info, time-series detection, metrics |
+|     4 | `GET`      | `/api/v1/uploads/{uploadId}/data`                | Returns cleaned JSON data (tabular)                                                      |
+|     5 | `GET`      | `/api/v1/uploads/{uploadId}/visualization/map`   | Returns GeoJSON FeatureCollection for mapping (if geo data is detected)                  |
+|     6 | `GET`      | `/api/v1/uploads/{uploadId}/visualization/chart` | Returns aggregated data suitable for bar/line/pie chart rendering                        |
+|     7 | `GET`      | `/api/v1/uploads`                                | List past uploads with basic metadata for the logged-in user                             |

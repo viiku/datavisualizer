@@ -1,4 +1,4 @@
 package com.viiku.datavisualizer.util;
 
-public class CSVExtractor {
+public class PdfExtractor {
 }
