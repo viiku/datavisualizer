@@ -1,17 +1,16 @@
 package com.viiku.datavisualizer.service.impl;
 
 import com.viiku.datavisualizer.common.exception.FileUploadException;
-import com.viiku.datavisualizer.model.dtos.payload.response.FileStatusResponse;
 import com.viiku.datavisualizer.model.dtos.payload.response.FileUploadResponse;
 import com.viiku.datavisualizer.model.enums.FileUploadStatus;
+import com.viiku.datavisualizer.repository.CsvDataRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import com.google.gson.Gson;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import com.viiku.datavisualizer.common.exception.FileParsingException;
-import com.viiku.datavisualizer.model.entities.FileDataEntity;
-import com.viiku.datavisualizer.repository.FileDataRepository;
+import com.viiku.datavisualizer.model.entities.CsvDataEntity;
 import com.viiku.datavisualizer.service.FileProcessingService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -20,6 +19,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,25 +32,24 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FileProcessingServiceImpl implements FileProcessingService {
 
-//    private final FileDataRepository fileDataRepository;
+    private final CsvDataRepository csvDataRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
-
-    @Override
-    public FileUploadResponse processFileAsync(MultipartFile file) {
-        return null;
-    }
 
     @Override
     public Map<String, Object> getProcessingStatus(String processingId) {
         return Map.of();
     }
 
+    @Override
+    public FileUploadResponse processFileAsync(MultipartFile file) throws IOFileUploadException {
 
-    private FileUploadResponse uploadFile(MultipartFile file) throws IOFileUploadException {
         if (file.isEmpty()) {
-            throw new FileUploadException("File is empty: " + file.getOriginalFilename());
+            return FileUploadResponse.builder()
+                            .status(FileUploadStatus.FAILED)
+                            .message("File is empty.")
+                            .build();
         }
 
         try {
@@ -82,7 +81,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
 
             UUID fileId = UUID.randomUUID();
 
-            FileDataEntity fileData = FileDataEntity.builder()
+            CsvDataEntity fileData = CsvDataEntity.builder()
                     .id(fileId)
                     .fileName(fileName)
                     .fileType(fileType)
@@ -90,9 +89,9 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                     .status(FileUploadStatus.PENDING)
                     .build();
 
-//            fileDataRepository.save(fileData);
-            return fileId;
+            csvDataRepository.save(fileData);
 
+            return fileId;
         } catch (IOException | IllegalArgumentException e) {
             throw new FileParsingException("Failed to parse file: " + e.getMessage(), e);
         }

@@ -8,15 +8,15 @@ package com.viiku.datavisualizer.common.model.mapper;
  * @param <T> the target type
  */
 
-public interface BaseMapper<S, T> {
+public interface BaseMapper<E, T> {
 
     /**
      * Maps a single source to a target type
      */
-    T mapToTarget(S source);
+    T mapToTarget(E entity);
 
     /**
-     * Maps to single Target to a Source type
+     * Maps to single entity to a Source type
      */
-    S mapToSource(T target);
+    E mapToEntity(T target);
 }

@@ -26,15 +26,6 @@ public class FileUploadController {
     public ResponseEntity<FileUploadResponse> uploadFile(
             @RequestParam(value = "file", required = true) MultipartFile file) {
 
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    FileUploadResponse.builder()
-                            .status(FileUploadStatus.FAILED)
-                            .message("File is empty.")
-                            .build()
-            );
-        }
-
         try {
             String contentType = file.getContentType();
             if (contentType == null ||
