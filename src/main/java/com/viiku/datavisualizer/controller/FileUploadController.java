@@ -33,10 +33,14 @@ public class FileUploadController {
                             contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
                             contentType.equals("application/pdf"))) {
 
-                return FileUploadResponse.builder()
+                UUID randUUID = UUID.randomUUID();
+                return ResponseEntity
+                        .badRequest()
+                        .body(FileUploadResponse.builder()
+                        .fileId(randUUID)
                         .message("Unsupported file type. Please upload CSV, Excel, or PDF.")
                         .status(FileUploadStatus.FAILED)
-                        .build();
+                        .build());
             }
 
             FileUploadResponse fileUploadResponse = fileProcessingService.processFileAsync(file); // Process asynchronously
