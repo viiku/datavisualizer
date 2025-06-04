@@ -32,24 +32,15 @@ public class FileUploadController {
                     !(contentType.equals("text/csv") ||
                             contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
                             contentType.equals("application/pdf"))) {
-                return ResponseEntity.badRequest().body(
-                        FileUploadResponse.builder()
-                                .message("Unsupported file type. Please upload CSV, Excel, or PDF.")
-                                .status(FileUploadStatus.FAILED)
-                                .build()
-                );
+
+                return FileUploadResponse.builder()
+                        .message("Unsupported file type. Please upload CSV, Excel, or PDF.")
+                        .status(FileUploadStatus.FAILED)
+                        .build();
             }
 
-            fileProcessingService.processFileAsync(file); // Process asynchronously
-            UUID fileId= UUID.randomUUID();
-            return ResponseEntity.accepted().body(
-                    FileUploadResponse.builder()
-                            .fileId(fileId)
-                            .status(FileUploadStatus.PENDING)
-                            .message("File uploaded and processing initiated.")
-                            .build()
-            );
-
+            FileUploadResponse fileUploadResponse = fileProcessingService.processFileAsync(file); // Process asynchronously
+            return ResponseEntity.accepted().body(fileUploadResponse);
         } catch (FileParsingException e) {
             return ResponseEntity.badRequest().body(
                     FileUploadResponse.builder()

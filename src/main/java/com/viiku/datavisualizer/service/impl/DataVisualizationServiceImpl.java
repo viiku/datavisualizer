@@ -10,10 +10,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class DataVisualizationServiceImpl implements DataVisualizationService {
+
     @Override
     public List<Map<String, Object>> getPreparedData(String id) {
         return null;
     }
-
-//    String getPreparedData(String id);
 }

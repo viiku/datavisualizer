@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/visualization")
+@RequestMapping("/api/v1/map")
 public class VisualizationController {
 
     private final DataVisualizationService dataVisualizationService; // Inject your service
