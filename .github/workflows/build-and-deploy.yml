@@ -16,7 +16,7 @@ jobs:
 
       - name: Clone frontend repository
         run: |
-          git clone https://github.com/your-org/your-frontend-repo.git frontend
+          git clone git@github.com:viiku/datavisualizer-frontend.git frontend
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
