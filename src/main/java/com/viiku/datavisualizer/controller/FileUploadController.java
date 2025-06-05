@@ -22,29 +22,31 @@ public class FileUploadController {
 
     private final FileProcessingService fileProcessingService;
 
+    private static final String CSV_CONTENT_TYPE = "text/csv";
+    private static final String PDF_CONTENT_TYPE = "application/pdf";
+    private static final String EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
     @PostMapping(path = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FileUploadResponse> uploadFile(
             @RequestParam(value = "file", required = true) MultipartFile file) {
 
         try {
             String contentType = file.getContentType();
-            if (contentType == null ||
-                    !(contentType.equals("text/csv") ||
-                            contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
-                            contentType.equals("application/pdf"))) {
+            if (contentType == null || !(contentType.equals(CSV_CONTENT_TYPE) ||
+                            contentType.equals(PDF_CONTENT_TYPE) ||
+                            contentType.equals(EXCEL_CONTENT_TYPE))) {
 
-                UUID randUUID = UUID.randomUUID();
                 return ResponseEntity
                         .badRequest()
                         .body(FileUploadResponse.builder()
-                        .fileId(randUUID)
+                        .fileId(null)
                         .message("Unsupported file type. Please upload CSV, Excel, or PDF.")
                         .status(FileUploadStatus.FAILED)
                         .build());
             }
 
-            FileUploadResponse fileUploadResponse = fileProcessingService.processFileAsync(file); // Process asynchronously
-            return ResponseEntity.accepted().body(fileUploadResponse);
+            FileUploadResponse response = fileProcessingService.processFileAsync(file);
+            return ResponseEntity.accepted().body(response); // Process asynchronously);
         } catch (FileParsingException e) {
             return ResponseEntity.badRequest().body(
                     FileUploadResponse.builder()

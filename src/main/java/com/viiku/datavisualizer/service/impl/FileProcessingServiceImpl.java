@@ -7,13 +7,8 @@ import com.viiku.datavisualizer.model.entities.CsvDataEntity;
 import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import com.viiku.datavisualizer.repository.CsvDataRepository;
 import com.viiku.datavisualizer.service.FileProcessingService;
-import com.viiku.datavisualizer.util.CsvFileParser;
-import com.viiku.datavisualizer.util.ExcelFileParser;
 import com.viiku.datavisualizer.util.FileParserStrategy;
-import com.viiku.datavisualizer.util.PdfFileParser;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
