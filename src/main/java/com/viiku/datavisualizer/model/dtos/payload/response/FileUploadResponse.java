@@ -1,8 +1,11 @@
 package com.viiku.datavisualizer.model.dtos.payload.response;
 
+import com.viiku.datavisualizer.model.enums.FileType;
 import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -12,6 +15,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class FileUploadResponse {
     private UUID fileId;
-    private FileUploadStatus status;
+    private String fileName;
+    private Long fileSize;
+    private FileType fileType;
+    private LocalDateTime uploadTimestamp;
+    private FileUploadStatus uploadStatus;
+    private List<String> detectedMetrics;
     private String message;
 }
