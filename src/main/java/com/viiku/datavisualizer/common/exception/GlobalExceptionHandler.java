@@ -1,7 +1,7 @@
 //package com.viiku.datavisualizer.common.exception;
 //
-//import com.viiku.datavisualizer.model.dtos.payload.response.FileStatusResponse;
-//import com.viiku.datavisualizer.model.dtos.payload.response.FileUploadResponse;
+//import com.viiku.datavisualizer.model.payload.response.payload.FileStatusResponse;
+//import com.viiku.datavisualizer.model.payload.response.payload.FileUploadResponse;
 //import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 //import lombok.extern.slf4j.Slf4j;
 //import org.slf4j.Logger;

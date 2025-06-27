@@ -1,4 +1,4 @@
-package com.viiku.datavisualizer.model.dtos.payload.response;
+package com.viiku.datavisualizer.model.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

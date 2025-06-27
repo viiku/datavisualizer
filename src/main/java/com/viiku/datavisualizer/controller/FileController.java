@@ -1,8 +1,8 @@
 package com.viiku.datavisualizer.controller;
 
 import com.viiku.datavisualizer.common.exception.FileParsingException;
-import com.viiku.datavisualizer.model.dtos.payload.response.FileStatusResponse;
-import com.viiku.datavisualizer.model.dtos.payload.response.FileUploadResponse;
+import com.viiku.datavisualizer.model.payload.response.FileStatusResponse;
+import com.viiku.datavisualizer.model.payload.response.FileUploadResponse;
 import com.viiku.datavisualizer.model.enums.FileType;
 import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import com.viiku.datavisualizer.service.FileService;
@@ -15,9 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 import java.util.UUID;
-
-import static com.viiku.datavisualizer.util.FileConstants.*;
-
 
 /**
  * File Management APIs
@@ -86,5 +83,20 @@ public class FileController {
     public ResponseEntity<FileStatusResponse> getFileStatus(@PathVariable UUID fileId) {
         FileStatusResponse fileStatusResponse = fileService.getFileStatus(fileId);
         return ResponseEntity.ok(fileStatusResponse);
+    }
+
+    /**
+     *
+     * Get List of uploaded files
+     */
+
+
+    /**
+     *
+     * Delete file
+     */
+    @DeleteMapping("/{fileId}")
+    public ResponseEntity<?> deleteFile(UUID fileId) {
+        return null;
     }
 }

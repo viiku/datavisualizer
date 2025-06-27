@@ -1,7 +1,7 @@
 package com.viiku.datavisualizer.service;
 
-import com.viiku.datavisualizer.model.dtos.payload.response.FileStatusResponse;
-import com.viiku.datavisualizer.model.dtos.payload.response.FileUploadResponse;
+import com.viiku.datavisualizer.model.payload.response.FileStatusResponse;
+import com.viiku.datavisualizer.model.payload.response.FileUploadResponse;
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.web.multipart.MultipartFile;
 

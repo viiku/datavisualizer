@@ -1,4 +1,4 @@
-package com.viiku.datavisualizer.model.dtos.payload.response;
+package com.viiku.datavisualizer.model.payload.response;
 
 import com.viiku.datavisualizer.model.enums.FileUploadStatus;
 import lombok.*;
@@ -19,4 +19,5 @@ public class FileStatusResponse {
     private int processedRecords;
     private int totalRecords;
     private String message;
+    private List<String> errors;
 }

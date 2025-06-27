@@ -1,6 +1,6 @@
 //package com.viiku.datavisualizer.common.exception;
 //
-//import com.viiku.datavisualizer.model.dtos.payload.response.ApiErrorResponse;
+//import com.viiku.datavisualizer.model.payload.response.payload.ApiErrorResponse;
 //import lombok.extern.slf4j.Slf4j;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;

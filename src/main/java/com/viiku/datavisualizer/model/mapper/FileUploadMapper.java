@@ -1,7 +1,7 @@
 package com.viiku.datavisualizer.model.mapper;
 
 import com.viiku.datavisualizer.common.model.mapper.BaseMapper;
-import com.viiku.datavisualizer.model.dtos.payload.response.FileUploadResponse;
+import com.viiku.datavisualizer.model.payload.response.FileUploadResponse;
 import com.viiku.datavisualizer.model.entities.FileUploadEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

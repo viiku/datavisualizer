@@ -1,9 +1,9 @@
 package com.viiku.datavisualizer.service;
 
-import java.util.List;
-import java.util.Map;
+import com.viiku.datavisualizer.model.payload.request.VisualizationRequest;
+import com.viiku.datavisualizer.model.payload.response.VisualizationResponse;
 
 public interface VisualizationService {
 
-    List<Map<String, Object>> getPreparedData(String id);
+    VisualizationResponse createVisualization(VisualizationRequest request);
 }

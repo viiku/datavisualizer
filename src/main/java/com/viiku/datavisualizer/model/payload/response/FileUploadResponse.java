@@ -1,4 +1,4 @@
-package com.viiku.datavisualizer.model.dtos.payload.response;
+package com.viiku.datavisualizer.model.payload.response;
 
 import com.viiku.datavisualizer.model.enums.FileType;
 import com.viiku.datavisualizer.model.enums.FileUploadStatus;
