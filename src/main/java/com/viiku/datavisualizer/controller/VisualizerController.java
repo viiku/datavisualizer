@@ -24,20 +24,31 @@ public class VisualizerController {
 
     private final VisualizationService visualizationService;
 
+    /**
+     *
+     * @param visualizationRequest basically will have datasetId
+     * @return json data for rendering
+     */
     @PostMapping
-    public ResponseEntity<VisualizationResponse> createVisualization(@Valid @RequestBody VisualizationRequest visualizationRequest) {
+    public ResponseEntity<VisualizationResponse> createVisualization(
+            @Valid @RequestBody VisualizationRequest visualizationRequest) {
 
         VisualizationResponse response = visualizationService.createVisualization(visualizationRequest);
         return ResponseEntity.accepted().body(response);
     }
 
+    /**
+     *
+     * @param vizId update visualizer Id
+     * @return null as of now
+     */
     @PutMapping("/{vizId}")
-    public String updateVisualization(@Valid @PathVariable UUID vizId) {
-        return "null";
+    public ResponseEntity<?> updateVisualization(@Valid @PathVariable UUID vizId) {
+        return null;
     }
 
     @GetMapping("/{vizId}/data")
-    public String getVisualizationData(@Valid @PathVariable UUID vizId) {
+    public ResponseEntity<VisualizationResponse> getVisualizationData(@Valid @PathVariable UUID vizId) {
         return null;
     }
 
@@ -46,7 +57,7 @@ public class VisualizerController {
      * Get Visualization Analytics
      */
     @GetMapping("/{vizId}/analytics")
-    public String getAnalytics(@Valid @PathVariable UUID vizId) {
+    public ResponseEntity<VisualizationResponse> getAnalytics(@Valid @PathVariable UUID vizId) {
         return null;
     }
 

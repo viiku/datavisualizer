@@ -1,6 +1,6 @@
 package com.viiku.datavisualizer.model.enums;
 
-public enum FileUploadStatus {
+public enum FileStatus {
     UPLOADED,
     PENDING,
     PROCESSING,

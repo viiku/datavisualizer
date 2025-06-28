@@ -4,17 +4,19 @@ import com.viiku.datavisualizer.common.exception.FileParsingException;
 import com.viiku.datavisualizer.common.exception.FileUploadException;
 import com.viiku.datavisualizer.model.dtos.FileInfoDto;
 import com.viiku.datavisualizer.model.dtos.ParsedFileResult;
+import com.viiku.datavisualizer.model.payload.response.FileListResponse;
 import com.viiku.datavisualizer.model.payload.response.FileStatusResponse;
 import com.viiku.datavisualizer.model.payload.response.FileUploadResponse;
 import com.viiku.datavisualizer.model.entities.FileUploadEntity;
 import com.viiku.datavisualizer.model.enums.FileType;
-import com.viiku.datavisualizer.model.enums.FileUploadStatus;
+import com.viiku.datavisualizer.model.enums.FileStatus;
 import com.viiku.datavisualizer.model.mapper.FileUploadMapper;
 import com.viiku.datavisualizer.repository.FileUploadRepository;
 import com.viiku.datavisualizer.service.FileService;
 import com.viiku.datavisualizer.util.FileParserStrategy;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +36,7 @@ public class FileServiceImpl implements FileService {
     private final FileUploadMapper fileUploadMapper;
 
     @Override
-    public FileUploadResponse uploadFile(MultipartFile file) {
+    public FileUploadResponse uploadAndProcessFile(MultipartFile file) {
 
         if (file.isEmpty()) {
             throw new FileUploadException("Uploaded file is empty.");
@@ -49,11 +51,12 @@ public class FileServiceImpl implements FileService {
 
             return FileUploadResponse.builder()
                     .fileId(null)
+                    .datasetId(null)
                     .fileName(fileInfo.getFileName())
                     .fileSize(fileInfo.getFileSize())
                     .fileType(FileType.UNKNOWN)
                     .uploadTimestamp(null)
-                    .uploadStatus(FileUploadStatus.FAILED)
+                    .uploadStatus(FileStatus.FAILED)
                     .message("Unsupported file type. Please upload CSV, Excel, or PDF.")
                     .detectedMetrics(null)
                     .build();
@@ -75,12 +78,35 @@ public class FileServiceImpl implements FileService {
 
         return FileStatusResponse.builder()
                 .fileId(fileId)
-                .fileUploadStatus(entity.getStatus())
+                .fileStatus(entity.getStatus())
                 .progress(10)
                 .processedRecords(1000)
                 .totalRecords(12000)
                 .message("Getting entity from DB")
                 .build();
+    }
+
+    /**
+     * Delete file
+     */
+    @Override
+    public void deleteFile(UUID fileId) {
+
+    }
+
+    @Override
+    public Object getFilePreview(UUID fileId, int rows) {
+        return null;
+    }
+
+    @Override
+    public FileUploadResponse retryProcessing(UUID fileId) {
+        return null;
+    }
+
+    @Override
+    public FileListResponse getFileList(Pageable pageable, FileStatus status, FileType fileType) {
+        return null;
     }
 
     /**
@@ -105,10 +131,11 @@ public class FileServiceImpl implements FileService {
         FileInfoDto fileInfo = getFileInfo(file);
         FileUploadEntity fileUploadEntity = FileUploadEntity.builder()
                 .id(fileId)
+                .datasetId(fileId)
                 .fileName(fileInfo.getFileName())
                 .fileSize(fileInfo.getFileSize())
                 .fileType(fileInfo.getFileType())
-                .status(FileUploadStatus.UPLOADED)
+                .status(FileStatus.UPLOADED)
                 .jsonData(jsonData)
                 .metrics(metrics)
                 .build();

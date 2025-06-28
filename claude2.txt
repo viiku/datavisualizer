@@ -1,0 +1,694 @@
+# Flexible Data Visualization Platform - Complete API Design
+
+## 1. Data Upload & Processing APIs
+
+### Smart File Upload with Auto-Detection
+```http
+POST /api/v1/data/upload
+Content-Type: multipart/form-data
+
+Body:
+- file: (binary) - CSV/Excel/PDF file
+- options: (JSON) - Processing options
+```
+
+**Request Options:**
+```json
+{
+  "autoDetectColumns": true,
+  "skipRows": 0,
+  "delimiter": ",", // for CSV
+  "encoding": "UTF-8",
+  "locale": "en_IN" // for number/date parsing
+}
+```
+
+**Response:**
+```json
+{
+  "datasetId": "ds_uuid_123",
+  "fileName": "indian_states_population.csv",
+  "fileType": "CSV",
+  "totalRows": 29,
+  "status": "PROCESSED",
+  "detectedSchema": {
+    "columns": [
+      {
+        "name": "State",
+        "originalName": "State",
+        "dataType": "STRING",
+        "role": "GEOGRAPHICAL", // GEOGRAPHICAL, METRIC, DIMENSION, TEMPORAL
+        "geographicalLevel": "STATE",
+        "sampleValues": ["Uttar Pradesh", "Maharashtra", "Bihar"],
+        "uniqueValues": 29,
+        "nullCount": 0
+      },
+      {
+        "name": "Population",
+        "originalName": "Population",
+        "dataType": "LONG",
+        "role": "METRIC",
+        "statisticalType": "QUANTITATIVE",
+        "statistics": {
+          "min": 700000,
+          "max": 241066874,
+          "mean": 42089551.7,
+          "median": 33000000,
+          "stdDev": 45123456.8
+        },
+        "nullCount": 0
+      }
+    ],
+    "geographicalContext": {
+      "detectedCountry": "India",
+      "detectedLevel": "STATE",
+      "matchedLocations": 29,
+      "unmatchedLocations": 0
+    }
+  },
+  "dataQuality": {
+    "overallScore": 0.95,
+    "issues": [],
+    "recommendations": [
+      "Data looks clean and ready for visualization",
+      "Consider adding literacy or GDP data for richer visualizations"
+    ]
+  }
+}
+```
+
+### Column Mapping & Schema Refinement
+```http
+PUT /api/v1/data/{datasetId}/schema
+```
+
+**Request Body:**
+```json
+{
+  "columnMappings": {
+    "State": {
+      "role": "GEOGRAPHICAL",
+      "geographicalLevel": "STATE",
+      "country": "India",
+      "displayName": "State/UT"
+    },
+    "Population": {
+      "role": "METRIC",
+      "unit": "count",
+      "displayName": "Population (2024)",
+      "formatPattern": "#,##0"
+    }
+  },
+  "datasetMetadata": {
+    "title": "Indian States Population 2024",
+    "description": "Population data for Indian states and union territories",
+    "source": "Census Data",
+    "year": 2024,
+    "tags": ["demographics", "india", "population"]
+  }
+}
+```
+
+### Get Processed Data
+```http
+GET /api/v1/data/{datasetId}?page=0&size=50&sort=Population:desc
+```
+
+**Response:**
+```json
+{
+  "datasetId": "ds_uuid_123",
+  "metadata": {
+    "title": "Indian States Population 2024",
+    "totalRows": 29,
+    "lastUpdated": "2025-06-27T10:30:00Z"
+  },
+  "data": [
+    {
+      "id": "row_1",
+      "State": "Uttar Pradesh",
+      "Population": 241066874,
+      "geoData": {
+        "coordinates": [80.9462, 26.8467],
+        "boundingBox": [77.05, 23.52, 84.63, 30.42],
+        "geoId": "IN-UP"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 0,
+    "size": 50,
+    "totalPages": 1,
+    "totalElements": 29
+  }
+}
+```
+
+## 2. Flexible Visualization Creation APIs
+
+### Create Visualization with Smart Defaults
+```http
+POST /api/v1/visualizations
+```
+
+**Request Body:**
+```json
+{
+  "datasetId": "ds_uuid_123",
+  "visualizationType": "MAP", // MAP, BAR_CHART, LINE_CHART, PIE_CHART, SCATTER_PLOT
+  "title": "Indian States by Population",
+  "configuration": {
+    "mapType": "CHOROPLETH", // BUBBLE, HEATMAP, MARKERS
+    "colorColumn": "Population",
+    "colorScheme": "YlOrRd",
+    "colorScale": "LOG", // LINEAR, SQRT, LOG
+    "legendPosition": "BOTTOM_RIGHT",
+    "showTooltips": true,
+    "tooltipTemplate": "{State}: {Population:,} people",
+    "mapSettings": {
+      "center": "auto", // or {"lat": 20.5937, "lng": 78.9629}
+      "zoom": "auto", // or specific zoom level
+      "bounds": "auto",
+      "style": "terrain"
+    }
+  },
+  "dimensions": {
+    "width": 1200,
+    "height": 800
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "visualizationId": "viz_uuid_456",
+  "title": "Indian States by Population",
+  "type": "MAP",
+  "status": "READY",
+  "shareUrl": "https://yourapp.com/viz/viz_uuid_456",
+  "embedUrl": "https://yourapp.com/embed/viz_uuid_456",
+  "previewUrl": "https://yourapp.com/api/v1/visualizations/viz_uuid_456/preview.png",
+  "exportFormats": ["PNG", "PDF", "SVG", "JSON"],
+  "createdAt": "2025-06-27T10:35:00Z"
+}
+```
+
+### Get Visualization Configuration
+```http
+GET /api/v1/visualizations/{vizId}/config
+```
+
+### Update Visualization
+```http
+PUT /api/v1/visualizations/{vizId}
+```
+
+## 3. Image Generation APIs
+
+### Generate Static Image
+```http
+POST /api/v1/visualizations/{vizId}/render
+```
+
+**Request Body:**
+```json
+{
+  "format": "PNG", // PNG, PDF, SVG, JPEG
+  "width": 1920,
+  "height": 1080,
+  "dpi": 300,
+  "quality": 95, // for JPEG
+  "backgroundColor": "#ffffff",
+  "transparent": false,
+  "watermark": {
+    "enabled": false,
+    "text": "Generated by YourApp",
+    "position": "bottom-right"
+  },
+  "customizations": {
+    "title": "Custom Title Override",
+    "subtitle": "Data as of June 2025",
+    "hideControls": true,
+    "fontSize": 14
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "imageId": "img_uuid_789",
+  "downloadUrl": "https://yourapp.com/api/v1/images/img_uuid_789/download",
+  "thumbnailUrl": "https://yourapp.com/api/v1/images/img_uuid_789/thumbnail",
+  "format": "PNG",
+  "fileSize": 2048576,
+  "dimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "expiresAt": "2025-07-27T10:30:00Z"
+}
+```
+
+### Batch Image Generation
+```http
+POST /api/v1/visualizations/batch-render
+```
+
+**Request Body:**
+```json
+{
+  "visualizations": [
+    {
+      "visualizationId": "viz_uuid_456",
+      "format": "PNG",
+      "width": 1200,
+      "height": 800
+    },
+    {
+      "visualizationId": "viz_uuid_457",
+      "format": "PDF",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "zipOutput": true,
+  "notifyEmail": "user@example.com"
+}
+```
+
+## 4. Chart Generation APIs
+
+### Create Bar Chart
+```http
+POST /api/v1/charts/bar
+```
+
+**Request Body:**
+```json
+{
+  "datasetId": "ds_uuid_123",
+  "configuration": {
+    "xAxis": "State",
+    "yAxis": "Population",
+    "orientation": "vertical", // horizontal, vertical
+    "sortBy": "Population",
+    "sortOrder": "desc",
+    "limit": 10, // top 10 states
+    "colorScheme": "Category10",
+    "showValues": true,
+    "title": "Top 10 Indian States by Population",
+    "xAxisLabel": "States",
+    "yAxisLabel": "Population (in millions)",
+    "numberFormat": "#,##0.0,,M" // Format as millions
+  }
+}
+```
+
+### Create Multi-Series Chart
+```http
+POST /api/v1/charts/multi-series
+```
+
+**Request Body (for datasets with multiple metrics):**
+```json
+{
+  "datasetId": "ds_uuid_124", // Dataset with Population, Literacy, GDP columns
+  "configuration": {
+    "type": "BAR", // LINE, AREA, SCATTER
+    "xAxis": "State",
+    "series": [
+      {
+        "column": "Population",
+        "type": "BAR",
+        "yAxis": "left",
+        "color": "#1f77b4"
+      },
+      {
+        "column": "Literacy",
+        "type": "LINE",
+        "yAxis": "right",
+        "color": "#ff7f0e"
+      }
+    ],
+    "title": "Population vs Literacy by State"
+  }
+}
+```
+
+## 5. Advanced Analytics APIs
+
+### Generate Data Insights
+```http
+POST /api/v1/analytics/{datasetId}/insights
+```
+
+**Response:**
+```json
+{
+  "insights": [
+    {
+      "type": "STATISTICAL",
+      "title": "Population Distribution",
+      "description": "Uttar Pradesh has 19.3% of India's total population",
+      "confidence": 0.95,
+      "data": {
+        "metric": "Population",
+        "value": 241066874,
+        "percentage": 19.3,
+        "rank": 1
+      }
+    },
+    {
+      "type": "TREND",
+      "title": "Regional Clusters",
+      "description": "Northern states (UP, Bihar, West Bengal) account for 37.8% of population",
+      "confidence": 0.88
+    },
+    {
+      "type": "OUTLIER",
+      "title": "Size Variation",
+      "description": "Sikkim is 344x smaller than Uttar Pradesh",
+      "confidence": 0.92
+    }
+  ],
+  "recommendations": [
+    "Consider using logarithmic scale for better visualization",
+    "Group smaller states for clearer representation"
+  ]
+}
+```
+
+### Compare Datasets
+```http
+POST /api/v1/analytics/compare
+```
+
+**Request Body:**
+```json
+{
+  "datasets": [
+    {"id": "ds_uuid_123", "label": "Population 2024"},
+    {"id": "ds_uuid_125", "label": "Population 2011"}
+  ],
+  "joinKey": "State",
+  "compareColumns": ["Population"],
+  "analysisType": "CHANGE_ANALYSIS"
+}
+```
+
+## 6. Template & Preset APIs
+
+### Get Smart Templates
+```http
+GET /api/v1/templates?datasetId={datasetId}&auto=true
+```
+
+**Response:**
+```json
+{
+  "recommendedTemplates": [
+    {
+      "templateId": "india_states_choropleth",
+      "name": "Indian States Choropleth Map",
+      "description": "Best for showing state-level data across India",
+      "matchScore": 0.95,
+      "preview": "https://yourapp.com/templates/india_states_choropleth/preview.png",
+      "configuration": {
+        "visualizationType": "MAP",
+        "mapType": "CHOROPLETH",
+        "colorScheme": "YlOrRd",
+        "recommendedFor": ["population", "gdp", "literacy"]
+      }
+    },
+    {
+      "templateId": "horizontal_bar_top10",
+      "name": "Top 10 Horizontal Bar Chart",
+      "description": "Perfect for ranking states by population",
+      "matchScore": 0.87,
+      "configuration": {
+        "visualizationType": "BAR_CHART",
+        "orientation": "horizontal",
+        "limit": 10,
+        "sortOrder": "desc"
+      }
+    }
+  ]
+}
+```
+
+## 7. Export & Download APIs
+
+### Export Data
+```http
+POST /api/v1/data/{datasetId}/export
+```
+
+**Request Body:**
+```json
+{
+  "format": "CSV", // CSV, EXCEL, JSON, GEOJSON
+  "includeGeoData": true,
+  "filters": {
+    "Population": {"min": 10000000} // Only states with >10M population
+  },
+  "columns": ["State", "Population"],
+  "fileName": "large_indian_states.csv"
+}
+```
+
+### Download Generated Image
+```http
+GET /api/v1/images/{imageId}/download
+Accept: image/png
+```
+
+## Java Implementation Strategy
+
+### 1. File Processing Pipeline
+```java
+@Service
+public class DataProcessingService {
+
+    @Autowired
+    private FileParserFactory fileParserFactory;
+
+    @Autowired
+    private GeographicalEnrichmentService geoService;
+
+    @Async
+    public CompletableFuture<ProcessingResult> processFile(MultipartFile file, ProcessingOptions options) {
+        try {
+            // 1. Parse file based on type
+            FileParser parser = fileParserFactory.getParser(file.getContentType());
+            RawDataset rawData = parser.parse(file.getInputStream(), options);
+
+            // 2. Detect schema and data types
+            DataSchema schema = schemaDetectionService.detectSchema(rawData);
+
+            // 3. Enrich with geographical data
+            if (schema.hasGeographicalColumns()) {
+                geoService.enrichWithGeoData(rawData, schema);
+            }
+
+            // 4. Save to database
+            Dataset dataset = datasetRepository.save(rawData, schema);
+
+            return CompletableFuture.completedFuture(
+                ProcessingResult.success(dataset.getId(), schema)
+            );
+
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(
+                ProcessingResult.failure(e.getMessage())
+            );
+        }
+    }
+}
+```
+
+### 2. Image Generation Options
+
+#### Option A: Server-Side Rendering with JavaFX/Swing
+```java
+@Service
+public class ChartImageService {
+
+    public BufferedImage generateChart(ChartConfiguration config, Dataset data) {
+        JFreeChart chart = createChart(config, data);
+
+        BufferedImage image = new BufferedImage(
+            config.getWidth(),
+            config.getHeight(),
+            BufferedImage.TYPE_INT_RGB
+        );
+
+        Graphics2D g2 = image.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        chart.draw(g2, new Rectangle2D.Double(0, 0, config.getWidth(), config.getHeight()));
+        g2.dispose();
+
+        return image;
+    }
+}
+```
+
+#### Option B: Headless Browser with Puppeteer (Recommended)
+```java
+@Service
+public class BrowserRenderingService {
+
+    @Value("${puppeteer.service.url}")
+    private String puppeteerServiceUrl;
+
+    public byte[] renderVisualization(String visualizationId, RenderOptions options) {
+        String htmlContent = generateVisualizationHTML(visualizationId);
+
+        RenderRequest request = RenderRequest.builder()
+            .html(htmlContent)
+            .width(options.getWidth())
+            .height(options.getHeight())
+            .format(options.getFormat())
+            .build();
+
+        return restTemplate.postForObject(
+            puppeteerServiceUrl + "/render",
+            request,
+            byte[].class
+        );
+    }
+}
+```
+
+#### Option C: D3.js + Node.js Microservice (Best for Complex Visualizations)
+```javascript
+// Separate Node.js service for rendering
+const puppeteer = require('puppeteer');
+const express = require('express');
+
+app.post('/render', async (req, res) => {
+    const { html, width, height, format } = req.body;
+
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.setViewport({ width, height });
+    await page.setContent(html);
+
+    const buffer = await page.screenshot({
+        type: format,
+        fullPage: true
+    });
+
+    await browser.close();
+    res.send(buffer);
+});
+```
+
+### 3. Recommended Tech Stack
+
+**Core Dependencies (pom.xml):**
+```xml
+<dependencies>
+    <!-- File Processing -->
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>5.2.4</version>
+    </dependency>
+    <dependency>
+        <groupId>com.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>5.7.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>2.0.29</version>
+    </dependency>
+
+    <!-- Geographical Data -->
+    <dependency>
+        <groupId>org.locationtech.jts</groupId>
+        <artifactId>jts-core</artifactId>
+        <version>1.19.0</version>
+    </dependency>
+
+    <!-- Chart Generation -->
+    <dependency>
+        <groupId>org.jfree</groupId>
+        <artifactId>jfreechart</artifactId>
+        <version>1.5.3</version>
+    </dependency>
+
+    <!-- Image Processing -->
+    <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-transcoder</artifactId>
+        <version>1.16</version>
+    </dependency>
+</dependencies>
+```
+
+### 4. Database Schema
+```sql
+-- Datasets table
+CREATE TABLE datasets (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    original_filename VARCHAR(255),
+    file_type VARCHAR(50),
+    total_rows INTEGER,
+    schema_json JSONB,
+    metadata_json JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id UUID,
+    status VARCHAR(50)
+);
+
+-- Dataset rows (flexible schema)
+CREATE TABLE dataset_rows (
+    id UUID PRIMARY KEY,
+    dataset_id UUID REFERENCES datasets(id),
+    row_index INTEGER,
+    data_json JSONB,
+    geo_data JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Visualizations
+CREATE TABLE visualizations (
+    id UUID PRIMARY KEY,
+    dataset_id UUID REFERENCES datasets(id),
+    title VARCHAR(255),
+    type VARCHAR(50),
+    configuration_json JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id UUID
+);
+
+-- Generated images
+CREATE TABLE generated_images (
+    id UUID PRIMARY KEY,
+    visualization_id UUID REFERENCES visualizations(id),
+    format VARCHAR(10),
+    file_path VARCHAR(500),
+    file_size BIGINT,
+    dimensions_json JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP
+);
+```
+
+## Key Recommendations:
+
+1. **Use Puppeteer/Playwright** for high-quality image generation
+2. **Implement caching** for geographical boundaries and rendered images
+3. **Use async processing** for file uploads and image generation
+4. **Support multiple output formats** (PNG, PDF, SVG)
+5. **Add data validation** and quality scoring
+6. **Implement smart defaults** based on data analysis
+7. **Use PostGIS** for geographical operations if dealing with complex spatial data
+
+Would you like me to elaborate on any specific part, such as the geographical data handling, image generation implementation, or the frontend integration patterns?

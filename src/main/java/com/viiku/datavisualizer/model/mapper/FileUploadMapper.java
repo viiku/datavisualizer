@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public interface FileUploadMapper extends BaseMapper<FileUploadEntity, FileUploadResponse> {
 
     @Mapping(source = "id", target = "fileId")
+    @Mapping(source = "id", target = "datasetId")
     @Mapping(source = "createdAt", target = "uploadTimestamp")
     @Mapping(source = "status", target = "uploadStatus")
     @Mapping(source = "metrics", target = "detectedMetrics")

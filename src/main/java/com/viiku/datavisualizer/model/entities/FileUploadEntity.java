@@ -2,7 +2,7 @@ package com.viiku.datavisualizer.model.entities;
 
 import com.viiku.datavisualizer.common.model.entity.BaseEntity;
 import com.viiku.datavisualizer.model.enums.FileType;
-import com.viiku.datavisualizer.model.enums.FileUploadStatus;
+import com.viiku.datavisualizer.model.enums.FileStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +21,8 @@ public class FileUploadEntity extends BaseEntity {
     @Id
     @GeneratedValue
     private UUID id;
+
+    private UUID datasetId;
 
     @Column(nullable = false, length = 255)
     private String fileName;
@@ -41,5 +43,5 @@ public class FileUploadEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FileUploadStatus status;
+    private FileStatus status;
 }
