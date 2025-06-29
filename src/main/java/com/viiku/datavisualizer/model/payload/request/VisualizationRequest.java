@@ -1,7 +1,7 @@
 package com.viiku.datavisualizer.model.payload.request;
 
-import com.viiku.datavisualizer.model.enums.MapStyle;
-import com.viiku.datavisualizer.model.enums.VisualizationType;
+import com.viiku.datavisualizer.model.enums.visualizer.MapStyle;
+import com.viiku.datavisualizer.model.enums.visualizer.VisualizationType;
 import lombok.*;
 
 import java.util.List;

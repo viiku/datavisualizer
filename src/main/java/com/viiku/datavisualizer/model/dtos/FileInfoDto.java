@@ -1,6 +1,6 @@
 package com.viiku.datavisualizer.model.dtos;
 
-import com.viiku.datavisualizer.model.enums.FileType;
+import com.viiku.datavisualizer.model.enums.files.FileType;
 import lombok.*;
 
 @Getter

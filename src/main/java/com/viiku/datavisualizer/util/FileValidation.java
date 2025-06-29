@@ -21,12 +21,11 @@ public class FileValidation {
     );
 
     public void validateUploadedFile(MultipartFile file) {
-        // Check if file is empty
+
         if (file.isEmpty()) {
             throw new InvalidFileTypeException("File is empty");
         }
 
-        // Check file size
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new InvalidFileTypeException(
                     String.format("File size %d exceeds maximum allowed size %d",
@@ -34,7 +33,6 @@ public class FileValidation {
             );
         }
 
-        // Check file extension
         String filename = file.getOriginalFilename();
         if (filename == null || !hasValidExtension(filename)) {
             throw new InvalidFileTypeException(
@@ -42,7 +40,7 @@ public class FileValidation {
             );
         }
 
-        // Check content type
+
         String contentType = file.getContentType();
         if (contentType == null || !isAllowedContentType(contentType)) {
             throw new InvalidFileTypeException("Invalid content type: " + contentType);

@@ -1,7 +1,7 @@
 package com.viiku.datavisualizer.service;
 
-import com.viiku.datavisualizer.model.enums.FileStatus;
-import com.viiku.datavisualizer.model.enums.FileType;
+import com.viiku.datavisualizer.model.enums.files.FileStatus;
+import com.viiku.datavisualizer.model.enums.files.FileType;
 import com.viiku.datavisualizer.model.payload.response.FileListResponse;
 import com.viiku.datavisualizer.model.payload.response.FileStatusResponse;
 import com.viiku.datavisualizer.model.payload.response.FileUploadResponse;

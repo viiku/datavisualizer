@@ -1,6 +1,6 @@
 package com.viiku.datavisualizer.model.dtos;
 
-import com.viiku.datavisualizer.model.enums.ColumnDataType;
+import com.viiku.datavisualizer.model.enums.files.ColumnDataType;
 import lombok.*;
 
 import java.util.List;

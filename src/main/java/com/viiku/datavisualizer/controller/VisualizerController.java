@@ -1,12 +1,14 @@
-package com.viiku.visualizer.controller;
+package com.viiku.datavisualizer.controller;
 
 import com.viiku.datavisualizer.model.payload.request.VisualizationExportRequest;
 import com.viiku.datavisualizer.model.payload.request.VisualizationRequest;
 import com.viiku.datavisualizer.model.payload.request.VisualizationShareRequest;
+import com.viiku.datavisualizer.model.payload.response.ApiResponse;
 import com.viiku.datavisualizer.model.payload.response.VisualizationResponse;
 import com.viiku.datavisualizer.service.VisualizationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,11 +32,12 @@ public class VisualizerController {
      * @return json data for rendering
      */
     @PostMapping
-    public ResponseEntity<VisualizationResponse> createVisualization(
+    public ResponseEntity<ApiResponse<VisualizationResponse>> createVisualization(
             @Valid @RequestBody VisualizationRequest visualizationRequest) {
 
         VisualizationResponse response = visualizationService.createVisualization(visualizationRequest);
-        return ResponseEntity.accepted().body(response);
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(ApiResponse.success(response, "Visualization Image created successfully and processing started"));
     }
 
     /**
@@ -48,7 +51,7 @@ public class VisualizerController {
     }
 
     @GetMapping("/{vizId}/data")
-    public ResponseEntity<VisualizationResponse> getVisualizationData(@Valid @PathVariable UUID vizId) {
+    public ResponseEntity<ApiResponse<VisualizationResponse>> getVisualizationData(@Valid @PathVariable UUID vizId) {
         return null;
     }
 
@@ -57,7 +60,7 @@ public class VisualizerController {
      * Get Visualization Analytics
      */
     @GetMapping("/{vizId}/analytics")
-    public ResponseEntity<VisualizationResponse> getAnalytics(@Valid @PathVariable UUID vizId) {
+    public ResponseEntity<ApiResponse<VisualizationResponse>> getAnalytics(@Valid @PathVariable UUID vizId) {
         return null;
     }
 

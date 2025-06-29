@@ -1,6 +1,6 @@
 package com.viiku.datavisualizer.model.payload.response;
 
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.files.FileStatus;
 import lombok.*;
 
 import java.util.List;

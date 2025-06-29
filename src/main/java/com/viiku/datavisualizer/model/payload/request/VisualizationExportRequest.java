@@ -1,6 +1,6 @@
 package com.viiku.datavisualizer.model.payload.request;
 
-import com.viiku.datavisualizer.model.enums.VisualizationExportFormat;
+import com.viiku.datavisualizer.model.enums.visualizer.VisualizationExportFormat;
 import lombok.*;
 
 @Setter

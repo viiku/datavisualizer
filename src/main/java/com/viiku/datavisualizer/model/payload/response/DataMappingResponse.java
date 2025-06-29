@@ -1,9 +1,9 @@
 package com.viiku.datavisualizer.model.payload.response;
 
-import com.viiku.datavisualizer.model.enums.ColumnDataType;
-import com.viiku.datavisualizer.model.enums.ColumnRole;
-import com.viiku.datavisualizer.model.enums.FileStatus;
-import com.viiku.datavisualizer.model.enums.FileType;
+import com.viiku.datavisualizer.model.enums.files.ColumnDataType;
+import com.viiku.datavisualizer.model.enums.files.ColumnRole;
+import com.viiku.datavisualizer.model.enums.files.FileStatus;
+import com.viiku.datavisualizer.model.enums.files.FileType;
 import lombok.*;
 
 import java.util.List;

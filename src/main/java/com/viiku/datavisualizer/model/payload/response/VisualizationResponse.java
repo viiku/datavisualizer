@@ -1,7 +1,7 @@
 package com.viiku.datavisualizer.model.payload.response;
 
 
-import com.viiku.datavisualizer.model.enums.VisualizationStatus;
+import com.viiku.datavisualizer.model.enums.visualizer.VisualizationStatus;
 import lombok.*;
 
 import java.util.UUID;

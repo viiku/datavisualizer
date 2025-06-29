@@ -1,8 +1,8 @@
 package com.viiku.datavisualizer.model.entities;
 
 import com.viiku.datavisualizer.common.model.entity.BaseEntity;
-import com.viiku.datavisualizer.model.enums.FileType;
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.files.FileType;
+import com.viiku.datavisualizer.model.enums.files.FileStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

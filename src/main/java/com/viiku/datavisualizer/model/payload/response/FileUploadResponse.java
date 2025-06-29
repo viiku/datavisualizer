@@ -1,7 +1,7 @@
 package com.viiku.datavisualizer.model.payload.response;
 
-import com.viiku.datavisualizer.model.enums.FileType;
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.files.FileType;
+import com.viiku.datavisualizer.model.enums.files.FileStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,5 +22,4 @@ public class FileUploadResponse {
     private LocalDateTime uploadTimestamp;
     private FileStatus uploadStatus;
     private List<String> detectedMetrics;
-    private String message;
 }

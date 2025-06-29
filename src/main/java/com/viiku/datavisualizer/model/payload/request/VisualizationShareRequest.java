@@ -1,6 +1,6 @@
 package com.viiku.datavisualizer.model.payload.request;
 
-import com.viiku.datavisualizer.model.enums.VisualizationSharePermission;
+import com.viiku.datavisualizer.model.enums.visualizer.VisualizationSharePermission;
 import lombok.*;
 
 @Setter

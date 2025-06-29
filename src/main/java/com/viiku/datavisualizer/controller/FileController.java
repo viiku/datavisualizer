@@ -1,13 +1,12 @@
 package com.viiku.datavisualizer.controller;
 
-import com.viiku.datavisualizer.common.exception.FileParsingException;
 import com.viiku.datavisualizer.common.exception.InvalidFileTypeException;
 import com.viiku.datavisualizer.model.payload.response.ApiResponse;
 import com.viiku.datavisualizer.model.payload.response.FileListResponse;
 import com.viiku.datavisualizer.model.payload.response.FileStatusResponse;
 import com.viiku.datavisualizer.model.payload.response.FileUploadResponse;
-import com.viiku.datavisualizer.model.enums.FileType;
-import com.viiku.datavisualizer.model.enums.FileStatus;
+import com.viiku.datavisualizer.model.enums.files.FileType;
+import com.viiku.datavisualizer.model.enums.files.FileStatus;
 import com.viiku.datavisualizer.service.FileService;
 import com.viiku.datavisualizer.util.FileValidation;
 import jakarta.validation.constraints.Max;
@@ -26,9 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,15 +44,6 @@ public class FileController {
     private final FileService fileService;
     private final FileValidation fileValidation;
 
-    // Constants for file constraints
-    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-//    private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
-//            "text/csv",
-//            "application/vnd.ms-excel",
-//            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-//            "application/pdf"
-//    );
-
     /**
      * Upload and process data file
      * Supports CSV, Excel (XLS/XLSX), and PDF files
@@ -66,9 +54,6 @@ public class FileController {
 
         log.info("File upload requested: {} ({})",
                 file.getOriginalFilename(), formatFileSize(file.getSize()));
-
-//        String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("unknown");
-//        Long fileSize = file.getSize();
 
         try {
             fileValidation.validateUploadedFile(file);
@@ -85,44 +70,16 @@ public class FileController {
             log.warn("Invalid file type uploaded: {}", e.getMessage());
             return createErrorResponse(file, HttpStatus.BAD_REQUEST,
                     "Invalid file type", e.getMessage());
-        } catch (FileParsingException e) {
-            log.error("File parsing failed for {}: {}", file.getOriginalFilename(), e.getMessage());
-            return createErrorResponse(file, HttpStatus.BAD_REQUEST,
-                    "File parsing failed", e.getMessage());
+//        } catch (FileParsingException e) {
+//            log.error("File parsing failed for {}: {}", file.getOriginalFilename(), e.getMessage());
+//            return createErrorResponse(file, HttpStatus.BAD_REQUEST,
+//                    "File parsing failed", e.getMessage());
 
         } catch (Exception e) {
             log.error("Unexpected error during file upload: {}", e.getMessage(), e);
             return createErrorResponse(file, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Internal server error", "An unexpected error occurred while processing the file");
         }
-//        } catch (FileParsingException e) {
-//            return ResponseEntity.badRequest().body(
-//                    FileUploadResponse.builder()
-//                            .fileId(null)
-//                            .fileName(fileName)
-//                            .fileSize(fileSize)
-//                            .fileType(FileType.UNKNOWN)
-//                            .uploadTimestamp(null)
-//                            .uploadStatus(FileStatus.FAILED)
-//                            .message("File parsing failed: " + e.getMessage())
-//                            .detectedMetrics(null)
-//                            .build()
-//            );
-
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-//                    FileUploadResponse.builder()
-//                            .fileId(null)
-//                            .fileName(fileName)
-//                            .fileSize(fileSize)
-//                            .fileType(FileType.UNKNOWN)
-//                            .uploadTimestamp(null)
-//                            .uploadStatus(FileStatus.FAILED)
-//                            .message("Internal server error: " + e.getMessage())
-//                            .detectedMetrics(null)
-//                            .build()
-//            );
-//        }
     }
 
     /**
@@ -269,7 +226,7 @@ public class FileController {
                 .fileType(FileType.UNKNOWN)
                 .uploadTimestamp(LocalDateTime.now())
                 .uploadStatus(FileStatus.FAILED)
-                .message(message)
+//                .message(message)
                 .detectedMetrics(null)
                 .build();
 

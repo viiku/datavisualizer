@@ -1,4 +1,4 @@
-package com.viiku.datavisualizer.model.enums;
+package com.viiku.datavisualizer.model.enums.files;
 
 public enum FileType {
     JSON,
