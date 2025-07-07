@@ -117,14 +117,6 @@ public class FileServiceImpl implements FileService {
         return null;
     }
 
-    // Use OpenCSV or Apache Commons CSV
-    // Detect column types automatically
-    // Handle your "State,Population" format
-    /**
-     * Fully implemented method to parse and store file data.
-     * It finds the appropriate parser, persists the parsed data in the related repository,
-     * and creates a FileUploadEntity record.
-     */
     private FileUploadResponse parseAndSave(MultipartFile file) throws Exception {
         String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("unknown");
         String extension = FilenameUtils.getExtension(fileName);

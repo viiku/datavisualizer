@@ -1,7 +1,9 @@
 package com.viiku.datavisualizer.model.payload.response;
 
 
+import com.viiku.datavisualizer.model.enums.visualizer.VisualizationExportFormat;
 import com.viiku.datavisualizer.model.enums.visualizer.VisualizationStatus;
+import com.viiku.datavisualizer.model.enums.visualizer.VisualizationType;
 import lombok.*;
 
 import java.util.UUID;
@@ -13,8 +15,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class VisualizationResponse {
     private UUID visualizationId;
-    private String name;
+    private VisualizationType type;
     private VisualizationStatus status;
     private String shareUrl;
-    private String embedCode;
+    private String embedUrl;
+    private VisualizationExportFormat exportFormat;
 }

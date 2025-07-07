@@ -42,17 +42,33 @@ public class VisualizerController {
 
     /**
      *
-     * @param vizId update visualizer Id
+     * @param vizId get visualizer Id configuration
      * @return null as of now
      */
-    @PutMapping("/{vizId}")
-    public ResponseEntity<?> updateVisualization(@Valid @PathVariable UUID vizId) {
+    @GetMapping("/{vizId}")
+    public ResponseEntity<ApiResponse<VisualizationResponse>> getVisualizationConfiguration(
+            @Valid @PathVariable UUID vizId) {
         return null;
     }
 
+    /**
+     *
+     * @param vizId update visualizer Id configuration
+     * @return null as of now
+     */
+    @PutMapping("/{vizId}")
+    public ResponseEntity<ApiResponse<VisualizationResponse>> updateVisualization(
+            @PathVariable UUID vizId,
+            @Valid @RequestBody VisualizationRequest updateRequest) {
+
+        VisualizationResponse response = visualizationService.updateVisualization(vizId, updateRequest);
+        return ResponseEntity.ok(ApiResponse.success(response, "Visualization updated successfully"));
+    }
+
     @GetMapping("/{vizId}/data")
-    public ResponseEntity<ApiResponse<VisualizationResponse>> getVisualizationData(@Valid @PathVariable UUID vizId) {
-        return null;
+    public ResponseEntity<ApiResponse<VisualizationResponse>> getVisualizationData(@PathVariable UUID vizId) {
+        VisualizationResponse response = visualizationService.getVisualizationData(vizId);
+        return ResponseEntity.ok(ApiResponse.success(response, "Visualization data retrieved successfully"));
     }
 
     /**
@@ -69,9 +85,12 @@ public class VisualizerController {
      * Export Visualization
      */
     @PostMapping("/{vizId}/export")
-    public ResponseEntity<?> exportVisualization(@Valid @PathVariable UUID vizId,
-                                                      @RequestBody VisualizationExportRequest exportRequest) {
-        return null;
+    public ResponseEntity<ApiResponse<VisualizationResponse>> exportVisualization(
+            @PathVariable UUID vizId,
+            @Valid @RequestBody VisualizationExportRequest exportRequest) {
+
+        VisualizationResponse exportUrl = visualizationService.exportVisualization(vizId, exportRequest);
+        return ResponseEntity.ok(ApiResponse.success(exportUrl, "Export initiated successfully"));
     }
 
     /**
