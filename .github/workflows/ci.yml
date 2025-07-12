@@ -8,7 +8,6 @@ on:
 
 jobs:
   build-frontend:
-    needs: [prebuild]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout backend code
@@ -49,8 +48,8 @@ jobs:
           echo "Frontend images have been pushed"
 
 
+
   build-backend:
-    needs: [prebuild]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout backend code
@@ -91,6 +90,7 @@ jobs:
           docker build -t vikku26/data-visualizer-backend:latest -f Dockerfile.backend .
           docker push vikku26/data-visualizer-backend:latest
           echo "Backend images have been pushed"
+
 
 
   deploy:
