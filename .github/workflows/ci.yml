@@ -8,8 +8,8 @@ on:
 
 jobs:
   build-frontend:
+    needs: [prebuild]
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout backend code
         uses: actions/checkout@v4
@@ -34,6 +34,13 @@ jobs:
           cd ui
           npm install
           npm run build
+          ci ..
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: vikku26
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and Push Frontend Image
         run: |
@@ -41,9 +48,10 @@ jobs:
           docker push vikku26/data-visualizer-frontend:latest
           echo "Frontend images have been pushed"
 
-  build-backend:
-    runs-on: ubuntu-latest
 
+  build-backend:
+    needs: [prebuild]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout backend code
         uses: actions/checkout@v4
@@ -72,11 +80,18 @@ jobs:
         run: |
           mv target/*.jar target/app.jar
 
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: vikku26
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
       - name: Build and Push Backend Image
         run: |
           docker build -t vikku26/data-visualizer-backend:latest -f Dockerfile.backend .
           docker push vikku26/data-visualizer-backend:latest
           echo "Backend images have been pushed"
+
 
   deploy:
     needs: [build-backend, build-frontend]
