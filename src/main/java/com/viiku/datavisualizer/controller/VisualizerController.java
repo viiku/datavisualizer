@@ -1,5 +1,7 @@
 package com.viiku.datavisualizer.controller;
 
+import com.viiku.datavisualizer.model.enums.visualizer.VisualizationType;
+import com.viiku.datavisualizer.model.enums.visualizer.VizType;
 import com.viiku.datavisualizer.model.payload.request.VisualizationExportRequest;
 import com.viiku.datavisualizer.model.payload.request.VisualizationRequest;
 import com.viiku.datavisualizer.model.payload.request.VisualizationShareRequest;
@@ -12,13 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  *
  * Visualization Configuration APIs
  */
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/visualizations")
@@ -26,19 +28,19 @@ public class VisualizerController {
 
     private final VisualizationService visualizationService;
 
-    /**
-     *
-     * @param visualizationRequest basically will have datasetId
-     * @return json data for rendering
-     */
-    @PostMapping
-    public ResponseEntity<ApiResponse<VisualizationResponse>> createVisualization(
-            @Valid @RequestBody VisualizationRequest visualizationRequest) {
+        /**
+         *
+         * @param request basically will have datasetId
+         * @return json data for rendering
+         */
+        @PostMapping
+        public ResponseEntity<ApiResponse<VisualizationResponse>> createVisualization(
+                @Valid @RequestBody VisualizationRequest request) {
 
-        VisualizationResponse response = visualizationService.createVisualization(visualizationRequest);
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(ApiResponse.success(response, "Visualization Image created successfully and processing started"));
-    }
+            VisualizationResponse response = visualizationService.createVisualization(request);
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(ApiResponse.success(response, "Visualization Image created successfully and processing started"));
+        }
 
     /**
      *

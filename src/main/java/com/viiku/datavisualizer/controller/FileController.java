@@ -39,7 +39,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1/files")
 public class FileController {
 
-//    private static final Logger log = LoggerFactory.getLogger(FileController.class);
     private final FileService fileService;
     private final FileValidation fileValidation;
 

@@ -1,10 +1,14 @@
 package com.viiku.datavisualizer.model.payload.request;
 
-import com.viiku.datavisualizer.model.enums.visualizer.MapStyle;
 import com.viiku.datavisualizer.model.enums.visualizer.VisualizationType;
+import com.viiku.datavisualizer.model.enums.visualizer.VizType;
+import com.viiku.datavisualizer.util.visualization.VisualizationConfig;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.List;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -13,42 +17,11 @@ import java.util.List;
 @AllArgsConstructor
 public class VisualizationRequest {
 
-    private String name;
-    private String description;
-    private VisualizationType type;
-    private VisualizationConfiguration configuration;
-    private MapSettings mapSettings;
+    @NotNull
+    private UUID vizId;
 
-    @Setter
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private static class VisualizationConfiguration {
-        private String colorColumn;
-        private String colorScheme;
-        private String colorScale;
-        private String sizeColumn;
-        private List<String> tooltipColumns;
-        private String legendTitle;
-        private float opacity;
-        private String borderColor;
-        private int borderWidth;
-    }
+    @Enumerated(EnumType.STRING)
+    private VizType vizType;
 
-    @Setter
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private static class MapSettings {
-        private MapCenter mapCenter;
-        private int zoom;
-        private MapStyle style;
-    }
-
-    private static class MapCenter {
-        private double lat;
-        private double lng;
-    }
+    private VisualizationConfig configuration;
 }

@@ -4,5 +4,7 @@ public enum VisualizationType {
     CHOROPLETH,
     HEATMAP,
     BUBBLE,
-    MARKER
+    MARKER,
+    BAR,
+    LINE
 }
