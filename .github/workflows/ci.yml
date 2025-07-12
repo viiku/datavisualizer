@@ -96,7 +96,7 @@ jobs:
   deploy:
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/prod'
     steps:
       - name: Deploying both Imges
         run: |
