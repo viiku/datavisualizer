@@ -79,7 +79,7 @@ jobs:
           echo "Backend images have been pushed"
 
   deploy:
-    needs: [build-docker-image]
+    needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
