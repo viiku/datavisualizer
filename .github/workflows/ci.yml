@@ -70,13 +70,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: backend-jar
-          path: backend/target
+          path: .
 
       - name: Download frontend build
         uses: actions/download-artifact@v4
         with:
           name: frontend-build
-          path: ui
+          path: .
 
       - name: Log in to DockerHub
         uses: docker/login-action@v2
@@ -86,12 +86,12 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          docker build -t vikku26/data-visualizer-backend:latest ./backend
+          docker build -t vikku26/data-visualizer-backend:latest -f Dockerfile.backend .
           docker push vikku26/data-visualizer-backend:latest
 
       - name: Build and Push Frontend Image
         run: |
-          docker build -t vikku26/data-visualizer-frontend:latest ./ui
+          docker build -t vikku26/data-visualizer-frontend:latest -f Dockerfile.frontend .
           docker push vikku26/data-visualizer-frontend:latest
 
   deploy:
@@ -99,6 +99,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Deploying both Imges
+        run: |
+            docker-compose up --build
+
       # Example deployment step (replace with your actual deployment logic)
       - name: Deploy to Server (placeholder)
         run: echo "Deploying application..."
