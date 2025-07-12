@@ -95,7 +95,7 @@ jobs:
           docker push vikku26/data-visualizer-frontend:latest
 
   deploy:
-    needs: [build-frontend, build-backend]
+    needs: [build-docker-image]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
