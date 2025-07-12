@@ -33,7 +33,7 @@ jobs:
           cd ui
           npm install
           npm run build
-          ci ..
+          cd ..
 
       - name: Log in to DockerHub
         uses: docker/login-action@v2
