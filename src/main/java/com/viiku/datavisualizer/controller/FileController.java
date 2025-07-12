@@ -13,8 +13,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,7 +39,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/files")
 public class FileController {
 
-    private static final Logger log = LoggerFactory.getLogger(FileController.class);
+//    private static final Logger log = LoggerFactory.getLogger(FileController.class);
     private final FileService fileService;
     private final FileValidation fileValidation;
 
@@ -74,7 +73,6 @@ public class FileController {
 //            log.error("File parsing failed for {}: {}", file.getOriginalFilename(), e.getMessage());
 //            return createErrorResponse(file, HttpStatus.BAD_REQUEST,
 //                    "File parsing failed", e.getMessage());
-
         } catch (Exception e) {
             log.error("Unexpected error during file upload: {}", e.getMessage(), e);
             return createErrorResponse(file, HttpStatus.INTERNAL_SERVER_ERROR,

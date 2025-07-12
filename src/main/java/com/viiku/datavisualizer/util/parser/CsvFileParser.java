@@ -1,6 +1,5 @@
-package com.viiku.datavisualizer.util;
+package com.viiku.datavisualizer.util.parser;
 
-import com.google.gson.Gson;
 import com.viiku.datavisualizer.model.dtos.ParsedFileResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.*;
 
 @Slf4j
@@ -25,7 +23,7 @@ public class CsvFileParser implements FileParserStrategy {
 
     @Override
     public ParsedFileResult parse(MultipartFile file) throws Exception {
-//        log.info("Parsing CSV file: {}", file.getOriginalFilename());
+        log.info("Parsing CSV file: {}", file.getOriginalFilename());
 
         List<Map<String, String>> rows = new ArrayList<>();
         Set<String> headers = new HashSet<>();

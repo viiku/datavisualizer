@@ -1,4 +1,4 @@
-package com.viiku.datavisualizer.util;
+package com.viiku.datavisualizer.util.parser;
 
 import com.viiku.datavisualizer.model.dtos.ParsedFileResult;
 import org.springframework.web.multipart.MultipartFile;

@@ -15,7 +15,7 @@ public interface FileUploadMapper extends BaseMapper<FileUploadEntity, FileUploa
     @Mapping(source = "id", target = "datasetId")
     @Mapping(source = "createdAt", target = "uploadTimestamp")
     @Mapping(source = "status", target = "uploadStatus")
-    @Mapping(source = "metrics", target = "detectedMetrics")
+    @Mapping(source = "columnHeaders", target = "detectedMetrics")
     FileUploadResponse mapToTarget(FileUploadEntity uploadEntity);
 
     // Optional if needed

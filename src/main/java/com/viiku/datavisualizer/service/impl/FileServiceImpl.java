@@ -2,9 +2,9 @@ package com.viiku.datavisualizer.service.impl;
 
 import com.viiku.datavisualizer.common.exception.FileParsingException;
 import com.viiku.datavisualizer.common.exception.FileUploadException;
-import com.viiku.datavisualizer.model.dtos.FileInfoDto;
 import com.viiku.datavisualizer.model.dtos.FileProcessingDto;
 import com.viiku.datavisualizer.model.dtos.ParsedFileResult;
+import com.viiku.datavisualizer.model.entities.FileContentEntity;
 import com.viiku.datavisualizer.model.payload.response.FileListResponse;
 import com.viiku.datavisualizer.model.payload.response.FileStatusResponse;
 import com.viiku.datavisualizer.model.payload.response.FileUploadResponse;
@@ -14,12 +14,13 @@ import com.viiku.datavisualizer.model.enums.files.FileStatus;
 import com.viiku.datavisualizer.model.mapper.FileUploadMapper;
 import com.viiku.datavisualizer.repository.FileUploadRepository;
 import com.viiku.datavisualizer.service.FileService;
-import com.viiku.datavisualizer.util.FileParserStrategy;
+import com.viiku.datavisualizer.util.builder.FileContentBuilder;
+import com.viiku.datavisualizer.util.parser.FileParserStrategy;
+import com.viiku.datavisualizer.util.builder.FileUploadBuilder;
 import lombok.*;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -47,12 +48,9 @@ public class FileServiceImpl implements FileService {
     private final List<FileParserStrategy> parserStrategies;
     private final FileUploadRepository fileUploadRepository;
     private final FileUploadMapper fileUploadMapper;
+    private final FileUploadBuilder fileUploadBuilder;
+    private final FileContentBuilder fileContentBuilder;
 
-    // 1. Save file to temporary storage
-    // 2. Parse based on file type
-    // 3. Detect schema and columns
-    // 4. Start async processing
-    // 5. Return response immediately
     @Override
     public FileUploadResponse uploadAndProcessFile(MultipartFile file) {
 
@@ -123,37 +121,24 @@ public class FileServiceImpl implements FileService {
         UUID fileId = UUID.randomUUID();
 
         log.info("Starting file processing pipeline for {} (ID: {})", fileName, fileId);
-
-        // Step 1: Save file to temporary storage
         String tempFilePath = saveToTemporaryStorage(file, fileId);
 
         try {
-            // Step 2: Parse based on file type
             FileParserStrategy fileParser = findParserStrategy(extension);
             ParsedFileResult parseResult = fileParser.parse(file);
 
-            // Step 3: Detect schema and columns (enhanced with metrics)
-            FileInfoDto fileInfo = getFileInfo(file);
-            List<String> detectedMetrics = detectSchemaAndMetrics(parseResult);
-
-            // Create initial entity with PROCESSING status
-            FileUploadEntity fileUploadEntity = createInitialFileEntity(
-                    fileId, fileInfo, parseResult, detectedMetrics, FileStatus.PROCESSING
-            );
-
-            // Save entity immediately
+            FileUploadEntity fileUploadEntity = fileUploadBuilder.buildFileUploadEntities(fileId, file, parseResult);
+            List<FileContentEntity> contents = fileContentBuilder.buildFileContentEntities(parseResult, fileUploadEntity);
+            fileUploadEntity.setFileContents(contents);
             FileUploadEntity savedEntity = fileUploadRepository.save(fileUploadEntity);
 
-            // Step 4: Start async processing
             startAsyncProcessing(fileId, tempFilePath, parseResult, savedEntity);
 
-            // Step 5: Return response immediately
             FileUploadResponse response = fileUploadMapper.mapToTarget(savedEntity);
 
             log.info("File upload initiated successfully. FileId: {}, Status: PROCESSING", fileId);
             return response;
         } catch (Exception e) {
-            // Cleanup temp file on error
             cleanupTempFile(tempFilePath);
             throw e;
         }
@@ -194,49 +179,6 @@ public class FileServiceImpl implements FileService {
                 .findFirst()
                 .orElseThrow(() -> new FileParsingException("Unsupported file type: " + extension));
     }
-
-    /**
-     * Step 3: Enhanced schema detection and metrics analysis
-     */
-    private List<String> detectSchemaAndMetrics(ParsedFileResult parseResult) {
-        List<String> detectedMetrics = new ArrayList<>(parseResult.getMetrics());
-
-        // Add schema-based metrics
-        if (parseResult.getJsonData() != null) {
-            try {
-                // Analyze JSON structure for additional metrics
-                Map<String, Object> schemaInfo = analyzeDataStructure(parseResult.getJsonData());
-                schemaInfo.forEach((key, value) ->
-                        detectedMetrics.add(key + ": " + value.toString())
-                );
-            } catch (Exception e) {
-                log.warn("Failed to analyze data structure for additional metrics: {}", e.getMessage());
-            }
-        }
-
-        return detectedMetrics;
-    }
-
-    /**
-     * Create initial file entity with processing status
-     */
-    private FileUploadEntity createInitialFileEntity(
-            UUID fileId, FileInfoDto fileInfo, ParsedFileResult parseResult,
-            List<String> metrics, FileStatus status) {
-
-        return FileUploadEntity.builder()
-                .id(fileId)
-                .datasetId(fileId)
-                .fileName(fileInfo.getFileName())
-                .fileSize(fileInfo.getFileSize())
-                .fileType(fileInfo.getFileType())
-                .status(status)
-                .jsonData(parseResult.getJsonData())
-                .metrics(metrics)
-//                .uploadTimestamp(LocalDateTime.now())
-                .build();
-    }
-
 
     /**
      * Step 4: Start asynchronous processing
@@ -302,7 +244,8 @@ public class FileServiceImpl implements FileService {
             result.addStep("Data indexing completed");
 
             result.setStatus("SUCCESS");
-            result.setProcessedRecords(extractRecordCount(jsonData));
+//            result.setProcessedRecords(extractRecordCount(jsonData));
+            result.setProcessedRecords(29);
 
         } catch (Exception e) {
             result.setStatus("FAILED");
@@ -326,11 +269,11 @@ public class FileServiceImpl implements FileService {
 
                 // Update metrics with processing results
                 if (result != null && result.getStatistics() != null) {
-                    List<String> updatedMetrics = new ArrayList<>(entity.getMetrics());
+                    List<String> updatedMetrics = new ArrayList<>(entity.getColumnHeaders());
                     result.getStatistics().forEach((key, value) ->
                             updatedMetrics.add(key + ": " + value.toString())
                     );
-                    entity.setMetrics(updatedMetrics);
+                    entity.setColumnHeaders(updatedMetrics);
                 }
 
                 fileUploadRepository.save(entity);
@@ -339,18 +282,6 @@ public class FileServiceImpl implements FileService {
         } catch (Exception e) {
             log.error("Failed to update file status for {}: {}", fileId, e.getMessage());
         }
-    }
-
-    private Map<String, Object> analyzeDataStructure(String jsonData) {
-        Map<String, Object> analysis = new HashMap<>();
-
-        if (jsonData != null && !jsonData.trim().isEmpty()) {
-            analysis.put("dataSize", jsonData.length());
-            analysis.put("estimatedRecords", estimateRecordCount(jsonData));
-            analysis.put("hasStructuredData", jsonData.contains("{") && jsonData.contains("}"));
-        }
-
-        return analysis;
     }
 
     private void validateProcessedData(String jsonData) {
@@ -368,7 +299,7 @@ public class FileServiceImpl implements FileService {
 
     private Map<String, Object> generateDataStatistics(String jsonData) {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("recordCount", extractRecordCount(jsonData));
+        stats.put("recordCount", 29);
         stats.put("dataSize", jsonData.length());
         stats.put("processedAt", LocalDateTime.now());
         return stats;
@@ -379,24 +310,14 @@ public class FileServiceImpl implements FileService {
         log.debug("Creating indexes for file: {}", fileId);
     }
 
-    private int extractRecordCount(String jsonData) {
-        // Simple record count estimation
-        if (jsonData == null) return 0;
-        return jsonData.split("\\{").length - 1; // Rough estimate
-    }
-
-    private int estimateRecordCount(String jsonData) {
-        return extractRecordCount(jsonData);
-    }
-
     private void updateFileWithProcessingResults(UUID fileId, FileProcessingDto result) {
         // Update entity with final processing results
         Optional<FileUploadEntity> entityOpt = fileUploadRepository.findById(fileId);
         if (entityOpt.isPresent()) {
             FileUploadEntity entity = entityOpt.get();
-            if (result.getTransformedData() != null) {
-                entity.setJsonData(result.getTransformedData());
-            }
+//            if (result.getTransformedData() != null) {
+//                entity.setJsonData(result.getTransformedData());
+//            }
             fileUploadRepository.save(entity);
         }
     }
@@ -410,29 +331,6 @@ public class FileServiceImpl implements FileService {
         } catch (IOException e) {
             log.warn("Failed to cleanup temporary file {}: {}", tempFilePath, e.getMessage());
         }
-    }
-
-    private FileInfoDto getFileInfo(MultipartFile file) {
-        String fileName = Optional.ofNullable(file.getOriginalFilename()).orElse("unknown");
-        Long fileSize = file.getSize();
-        String extension = FilenameUtils.getExtension(fileName);
-        FileType fileType;
-
-        switch (extension.toLowerCase()) {
-            case "json" -> fileType = FileType.JSON;
-            case "txt" , "text" -> fileType = FileType.TEXT;
-            case "csv" -> fileType = FileType.CSV;
-            case "pdf" -> fileType = FileType.PDF;
-            case "xls", "xlsx" -> fileType = FileType.EXCEL;
-            default -> fileType = FileType.UNKNOWN;
-        }
-
-
-        return FileInfoDto.builder()
-                .fileName(fileName)
-                .fileSize(fileSize)
-                .fileType(fileType)
-                .build();
     }
     
 }

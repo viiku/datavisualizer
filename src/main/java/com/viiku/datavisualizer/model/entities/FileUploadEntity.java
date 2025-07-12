@@ -22,8 +22,6 @@ public class FileUploadEntity extends BaseEntity {
     @GeneratedValue
     private UUID id;
 
-    private UUID datasetId;
-
     @Column(nullable = false, length = 255)
     private String fileName;
 
@@ -34,14 +32,36 @@ public class FileUploadEntity extends BaseEntity {
     @Column(nullable = false)
     private FileType fileType;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String jsonData;
-
-    @ElementCollection
-    private List<String> metrics;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FileStatus status;
+
+    // Store column headers as metadata
+    @ElementCollection
+    @CollectionTable(name = "file_column_headers", joinColumns = @JoinColumn(name = "file_id"))
+    @Column(name = "column_name")
+    private List<String> columnHeaders;
+
+    // Store file processing metadata
+    @Column
+    private Integer totalRows;
+
+    @Column
+    private Integer totalColumns;
+
+    // Optional: Store file summary/statistics as JSON
+//    @Lob
+//    @Column(columnDefinition = "TEXT")
+//    private String processingMetadata;
+
+
+//    @ManyToOne
+//    @JoinColumn(name = "dataset_id")
+//    private DatasetEntity dataset;
+
+    @OneToMany(mappedBy = "fileUpload", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FileContentEntity> fileContents;
+
+//    @OneToMany(mappedBy = "fileUpload", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<FileDataCellEntity> dataCells;
 }
