@@ -46,7 +46,7 @@ public class VisualizationServiceImpl implements VisualizationService {
         // TODO: Save entity to DB if applicable
 
         return VisualizationResponse.builder()
-                .vizId(request.getVizId())
+                .visualizationId(request.getVizId())
                 .type(type)
                 .status(status)
                 .config(config)
